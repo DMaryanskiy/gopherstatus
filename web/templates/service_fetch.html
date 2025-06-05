@@ -1,0 +1,64 @@
+
+
+{{template "header.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Services</title>
+  <style>
+    body { font-family: sans-serif; background: #f7f7f7; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; }
+    .service { border-bottom: 1px solid #ccc; padding: 10px 0; }
+    .service:last-child { border-bottom: none; }
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Your Services</h2>
+  </div>
+  <button onclick="window.location.href='/services/create'">Add New Service</button>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Not logged in");
+      window.location.href = "/login";
+    }
+
+    const res = await fetch("/api/services/fetch", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    if (!res.ok) {
+      alert("Failed to load services");
+      return;
+    }
+
+    const services = await res.json();
+    const container = document.querySelector(".container");
+
+    if (services.length === 0) {
+      container.innerHTML += "<p>No services found.</p>";
+    } else {
+      services.forEach(s => {
+        const div = document.createElement("div");
+        div.className = "service";
+        div.innerHTML = `<strong>${s.Name}</strong><br/>Method: ${s.Method}<br/>URL: ${s.URL}<br/>Interval: ${s.Interval}`;
+        container.appendChild(div);
+      });
+    }
+  });
+</script>
+</html>

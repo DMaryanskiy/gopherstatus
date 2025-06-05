@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GopherStatus Dashboard</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f7f7f7; }
+    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+    th, td { padding: 8px 12px; border: 1px solid #ccc; }
+    th { background: #eee; }
+    .up { color: green; }
+    .down { color: red; }
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  {{ template "header.html" }}
+  <div class="container">
+    <h2>Status Dashboard</h2>
+    <button onclick="window.location.href='/services'">Services</button>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>URL</th>
+          <th>Status</th>
+          <th>Response Time (ms)</th>
+          <th>Last Checked</th>
+          <th>Error</th>
+        </tr>
+      </thead>
+      <tbody id="dashboard-body"></tbody>
+    </table>
+  </div>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", async function () {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Not logged in");
+      window.location.href = "/login";
+      return;
+    }
+
+    const res = await fetch("/api/dashboard", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    if (!res.ok) {
+      alert("Failed to load dashboard");
+      return;
+    }
+
+    const statuses = await res.json();
+    const tbody = document.getElementById("dashboard-body");
+
+    if (statuses.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='6'>No status data available.</td></tr>";
+    } else {
+      statuses.forEach(s => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${s.ServiceName}</td>
+          <td>${s.URL}</td>
+          <td class="${s.Online ? 'up' : 'down'}">${s.Online ? 'Online' : 'Offline'}</td>
+          <td>${s.ResponseMS}</td>
+          <td>${new Date(s.CheckedAt).toLocaleString()}</td>
+          <td>${s.Error || ''}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+  });
+</script>
+</html>

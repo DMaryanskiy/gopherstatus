@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register New User</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f7f7f7; }
+    form { max-width: 400px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ccc; }
+    label, input { display: block; width: 100%; margin-bottom: 10px; }
+    input { padding: 8px; font-size: 1em; }
+    button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+  <h1>Register New User</h1>
+  <form action="/api/registration" method="POST">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" required />
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required />
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required minlength="8" />
+
+    <label for="telegram_username">Telegram username</label>
+    <input type="text" id="telegram_username" name="telegram_username" />
+
+    <button type="submit">Register</button>
+  </form>
+</body>
+</html>

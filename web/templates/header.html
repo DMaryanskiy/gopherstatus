@@ -1,0 +1,28 @@
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>Service Status Dashboard</h1>
+    <div id="auth-action"></div>
+  </div>
+  
+  <script>
+    const container = document.getElementById("auth-action");
+    const token = localStorage.getItem("token");
+  
+    if (token) {
+      container.innerHTML = `
+        <button onclick="logout()" style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Logout
+        </button>
+      `;
+    } else {
+      container.innerHTML = `
+        <button onclick="window.location.href='/login'" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Login
+        </button>
+      `;
+    }
+  
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+  </script>

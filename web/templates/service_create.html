@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create New Service</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f7f7f7; }
+    form { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ccc; }
+    label, input, select, textarea { display: block; width: 100%; margin-bottom: 10px; }
+    input, select, textarea { padding: 8px; font-size: 1em; }
+    .headers-container { margin-bottom: 16px; }
+    .header-pair { display: flex; gap: 10px; margin-bottom: 8px; }
+    .header-pair input { flex: 1; }
+    button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+  <h1>Create New Service</h1>
+  <form action="/api/services/create" method="POST" id="service-form">
+    <label for="name">Service Name</label>
+    <input type="text" id="name" name="name" required />
+
+    <label for="url">URL</label>
+    <input type="url" id="url" name="url" required />
+
+    <label for="method">HTTP Method</label>
+    <select id="method" name="method" required>
+      <option value="GET">GET</option>
+      <option value="POST">POST</option>
+      <option value="PUT">PUT</option>
+      <option value="DELETE">DELETE</option>
+    </select>
+
+    <label for="interval">Interval (seconds)</label>
+    <input type="number" id="interval" name="interval" required min="1" />
+
+    <label for="body">Request Body (optional)</label>
+    <textarea id="body" name="body" rows="4"></textarea>
+
+    <label>Headers (optional)</label>
+    <div class="headers-container" id="headers">
+      <div class="header-pair">
+        <input type="text" name="headers[Content-Type]" placeholder="Header Name" value="application/json" />
+      </div>
+    </div>
+    <button type="button" onclick="addHeader()">Add Header</button>
+
+    <br /><br />
+    <button type="submit">Create Service</button>
+  </form>
+
+  <script>
+    function addHeader() {
+      const container = document.getElementById('headers');
+      const index = container.children.length;
+      const div = document.createElement('div');
+      div.className = 'header-pair';
+      div.innerHTML = `
+        <input type="text" name="headers[Header-${index}-Key]" placeholder="Header Key" />
+        <input type="text" name="headers[Header-${index}-Value]" placeholder="Header Value" />
+      `;
+      container.appendChild(div);
+    }
+
+    document.getElementById("service-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to create a service.");
+        return;
+      }
+
+      const formData = new FormData(e.target);
+      const body = new URLSearchParams();
+
+      for (const [key, value] of formData.entries()) {
+        body.append(key, value);
+      }
+
+      const response = await fetch("/api/services/create", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: body.toString()
+      });
+
+      if (response.ok) {
+        alert("Service created successfully!");
+        window.location.href = "/dashboard";
+      } else {
+        const msg = await response.text();
+        alert("Failed to create service:\n" + msg);
+      }
+    });
+  </script>
+</body>
+</html>
